@@ -4,12 +4,12 @@ from networksecurity.utils.ml_utils.model.estimator import NetworkModel
 
 ca = certifi.where()
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv 
 load_dotenv()
 mong_db_url = os.getenv("MONGODB_URL_KEY")
 print(mong_db_url)
 
-import pymongo
+import pymongo 
 from networksecurity.exception.exception import NetworkSecurityException
 from networksecurity.logging.logger import logging
 from networksecurity.pipeline.training_pipeline import TraningPipeline

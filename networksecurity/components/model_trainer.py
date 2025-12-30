@@ -2,6 +2,9 @@ import os
 import sys
 import mlflow
 import dagshub
+import matplotlib
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -110,38 +113,12 @@ class ModelTrainer:
             "AdaBoost": AdaBoostClassifier(),
         }
 
-        params = {
-            "Decision Tree": {
-                "criterion": ["gini", "entropy", "log_loss"]
-            },
-            "Random Forest": {
-                "n_estimators": [8, 16, 32, 128, 256]
-            },
-            "Gradient Boosting": {
-                "learning_rate": [0.1, 0.01, 0.05, 0.001],
-                "subsample": [0.6, 0.7, 0.75, 0.85, 0.9],
-                "n_estimators": [8, 16, 32, 64, 128, 256],
-            },
-            "AdaBoost": {
-                "learning_rate": [0.1, 0.01, 0.001],
-                "n_estimators": [8, 16, 32, 64, 128, 256],
-            },
-            "Logistic Regression": {},
-        }
-
-        # ---------- Hyperparameter search ----------
-        model_report = evaluate_models(
-            X_train=X_train,
-            y_train=y_train,
-            X_test=X_test,
-            y_test=y_test,
-            models=models,
-            params=params,
-        )
-
         # ---------- MLflow logging ----------
-        model_scores = {}
-        run_id_map = {}
+        best_f1 = -1
+        best_model = None
+        best_model_name = None
+        best_run_id = None
+
 
         for model_name, model in models.items():
 
@@ -176,22 +153,21 @@ class ModelTrainer:
                     y_proba=y_test_proba,
                 )
 
-                model_scores[model_name] = test_metric.f1_score
-                run_id_map[model_name] = run.info.run_id
+                if test_metric.f1_score > best_f1:
+                    best_f1 = test_metric.f1_score
+                    best_model = model
+                    best_model_name = model_name
+                    best_run_id = run.info.run_id
 
-        # ---------- Best model selection ----------
-        best_model_name = max(model_scores, key=model_scores.get)
-        best_model = model_report[best_model_name]["model"]
 
         logging.info(
             f"Best Model: {best_model_name} | "
-            f"Test F1: {model_scores[best_model_name]}"
+            f"Test F1: {best_f1}"
         )
 
-        # ---------- Tag best model ----------
-        mlflow.start_run(run_id=run_id_map[best_model_name])
-        mlflow.set_tag("best_model", "true")
-        mlflow.end_run()
+
+        with mlflow.start_run(run_id=best_run_id):
+            mlflow.set_tag("best_model", "true")
 
         # ---------- Save final model for deployment ----------
         preprocessor = load_object(
@@ -210,15 +186,19 @@ class ModelTrainer:
             preprocessor,
         )
 
-        logging.info("Final model and preprocessor saved in final_model/")
+        logging.info(f"Final model and preprocessor saved in final_models")
+        y_train_pred = best_model.predict(X_train)
+        y_test_pred = best_model.predict(X_test)
+
+        best_train_metric = get_classification_score(y_train, y_train_pred)
+        best_test_metric = get_classification_score(y_test, y_test_pred)
 
         return ModelTrainerArtifact(
-            trained_model_file_path=os.path.join(
-                final_model_dir, "model.pkl"
-            ),
-            train_metric_artifact=train_metric,
-            test_metric_artifact=test_metric,
+            trained_model_file_path=os.path.join(final_model_dir, "model.pkl"),
+            train_metric_artifact=best_train_metric,
+            test_metric_artifact=best_test_metric,
         )
+
 
     def initiate_model_trainer(self) -> ModelTrainerArtifact:
         try:
