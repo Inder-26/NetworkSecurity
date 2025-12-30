@@ -64,12 +64,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Uses EC2 IAM Role
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
