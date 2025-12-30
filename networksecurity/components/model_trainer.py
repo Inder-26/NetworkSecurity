@@ -1,4 +1,4 @@
-import os,sys
+import os,sys,mlflow
 from networksecurity.exception.exception import NetworkSecurityException
 from networksecurity.logging.logger import logging
 
@@ -23,6 +23,17 @@ class ModelTrainer:
             self.data_transformation_artifact = data_transformation_artifact
         except Exception as e:
             raise NetworkSecurityException(e,sys)
+        
+    def track_model_mlflow(self, best_model, classification_metric):
+        with mlflow.start_run():
+            f1_score = classification_metric.f1_score
+            precision_score = classification_metric.precision_score
+            recall_score  = classification_metric.recall_score
+
+            mlflow.log_metric("F1_score", f1_score)
+            mlflow.log_metric("Precision Score", precision_score)
+            mlflow.log_metric("Recall Score", recall_score)
+            mlflow.sklearn.log_model(best_model, "is the best model")
 
     def train_model(self,X_train,X_test,y_train,y_test):
         model = {
@@ -41,15 +52,15 @@ class ModelTrainer:
             "Random Forest": {
                 #'criterion':['gini','entropy','log_loss'],
                 #'max_features':['sqrt','log2'],
-                'n_estimators':[8,16,32,64,128,256]
+                'n_estimators':[8,16,32,128,256]
             },
             "Gradient Boosting": {
                 'learning_rate':[.1,.01,.05,.001],
-                'subsample':[0.6,0.7,0.75,0.8,0.85,0.9],
+                'subsample':[0.6,0.7,0.75,0.85,0.9],
                 'n_estimators':[8,16,32,64,128,256]
             },
             "AdaBoost": {
-                'learning_rate':[.1,.01,.05,.001],
+                'learning_rate':[.1,.01,.001],
                 'n_estimators':[8,16,32,64,128,256]
             },
             "Logistic Regression": {},
@@ -74,7 +85,10 @@ class ModelTrainer:
         classification_test_metric=get_classification_score(y_true=y_test, y_pred=y_test_pred)
         
 
-        ## Track with mlflow
+        ## Track with experiments with mlflow
+        self.track_model_mlflow(best_model,classification_train_metric)
+        self.track_model_mlflow(best_model,classification_test_metric)
+
 
 
         preprocessor = load_object(file_path=self.data_transformation_artifact.transformed_object_file_path)
