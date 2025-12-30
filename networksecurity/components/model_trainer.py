@@ -181,7 +181,7 @@ class ModelTrainer:
 
         # ---------- Best model selection ----------
         best_model_name = max(model_scores, key=model_scores.get)
-        best_model = models[best_model_name]
+        best_model = model_report[best_model_name]["model"]
 
         logging.info(
             f"Best Model: {best_model_name} | "

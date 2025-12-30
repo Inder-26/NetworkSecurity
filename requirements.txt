@@ -10,4 +10,7 @@ pyaml
 mlflow
 dagshub
 seaborn
+fastapi
+uvicorn
+python-multipart
 #-e .
