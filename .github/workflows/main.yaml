@@ -36,6 +36,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq unzip
 
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::184619417516:role/GitHubRunnerEC2Role
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -48,6 +54,7 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
 
   Continuous-Deployment:
     needs: build-and-push-ecr-image
