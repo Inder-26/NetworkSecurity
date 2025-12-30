@@ -49,12 +49,15 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-  continuous-deployment:
+  Continuous-Deployment:
     needs: build-and-push-ecr-image
     runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set AWS Region
+        run: echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
 
       - name: Login to Amazon ECR
         id: login-ecr
