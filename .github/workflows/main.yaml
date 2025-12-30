@@ -36,12 +36,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq unzip
 
-      # Uses IAM role (OIDC / runner permissions)
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -56,42 +50,26 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   continuous-deployment:
-    name: Continuous Deployment
     needs: build-and-push-ecr-image
     runs-on: self-hosted
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Pull latest image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
-          IMAGE_TAG: latest
+      - name: Pull image
         run: |
-          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
-      - name: Stop and remove old container (if exists)
+      - name: Stop old container
         run: |
           docker ps -q --filter "name=networksecurity" | grep -q . && \
           docker stop networksecurity && docker rm -fv networksecurity || true
 
-      - name: Run Docker Image to serve users
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
-          IMAGE_TAG: latest
+      - name: Run container
         run: |
-          docker run -d \
-            -p 8080:8080 \
-            --ipc="host" \
-            --name=networksecurity \
-            $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-      - name: Clean unused images and containers
-        run: docker system prune -f
+          docker run -d -p 8080:8080 --name=networksecurity \
+          ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
