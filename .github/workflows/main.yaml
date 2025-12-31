@@ -77,13 +77,20 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Cleanup & Deploy with Docker Compose
+      - name: HARSH Cleanup (Free Disk Space)
         run: |
-          # Use built-in docker compose v2
-          docker compose down || true
-          docker system prune -f || true
+          docker system prune -a -f --volumes || true
+          docker volume prune -f || true
+          rm -rf /tmp/*
+          df -h
+          
+      - name: Deploy with Docker Compose
+        run: |
           docker compose up -d
-          sleep 20
+          echo "Waiting for MongoDB startup..."
+          sleep 120  # 2 full minutes
+          docker ps
           curl -f http://localhost:8080/ || exit 1
+          echo "Homepage OK"
           curl -f http://localhost:8080/train || exit 1
-          echo " Full deployment successful!"
+          echo "Train endpoint OK - Full ML pipeline deployed!"
