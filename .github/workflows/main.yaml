@@ -68,18 +68,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # STEP 1: Automatically fetch credentials from your IAM Role
+      # FIX: Simply provide the region. 
+      # The action will automatically detect the EC2 IAM Role (Instance Profile).
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
+          # Do NOT provide role-to-assume or keys here for a self-hosted runner
 
-      # STEP 2: Login to ECR using the official action (no manual piping)
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # STEP 3: Pull the image using the registry URL from the step above
       - name: Pull image
         run: |
           docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
@@ -93,4 +93,3 @@ jobs:
         run: |
           docker run -d -p 8080:8080 --name=networksecurity \
           ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
-
