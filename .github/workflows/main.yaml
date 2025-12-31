@@ -81,7 +81,7 @@ jobs:
         run: |
           docker system prune -a -f --volumes || true
           docker volume prune -f || true
-          rm -rf /tmp/*
+          # Skip /tmp cleanup (causes permission errors)
           df -h
           
       - name: Deploy with Docker Compose
