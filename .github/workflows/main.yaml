@@ -46,7 +46,6 @@ jobs:
           role-to-assume: arn:aws:iam::184619417516:role/GitHubRunnerEC2Role
           aws-region: ${{ secrets.AWS_REGION }}
 
-
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -81,16 +80,29 @@ jobs:
         run: |
           docker system prune -a -f --volumes || true
           docker volume prune -f || true
-          # Skip /tmp cleanup (causes permission errors)
+          docker container prune -f || true
+          docker image prune -a -f || true
           df -h
-          
-      - name: Deploy with Docker Compose
+
+      - name: Deploy NetworkSecurity API
         run: |
-          docker compose up -d
-          echo "Waiting for MongoDB startup..."
-          sleep 120  # 2 full minutes
+          # Stop old container
+          docker stop networksecurity || true
+          docker rm networksecurity || true
+          
+          # Deploy new container
+          docker run -d -p 8080:8080 --name=networksecurity \
+            --restart unless-stopped \
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+          
+          # Health check
+          sleep 30
           docker ps
           curl -f http://localhost:8080/ || exit 1
-          echo "Homepage OK"
+          echo "✅ Homepage OK"
+          curl -f http://localhost:8080/predict || exit 1
+          echo "✅ Predict endpoint OK"
           curl -f http://localhost:8080/train || exit 1
-          echo "Train endpoint OK - Full ML pipeline deployed!"
+          echo "✅ Train endpoint OK (CSV fallback)"
+          echo "🌐 Live at: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):8080/"
+          echo "✅ PRODUCTION ML API FULLY DEPLOYED!"
