@@ -67,14 +67,14 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
-      # FIX: Simply provide the region. 
-      # The action will automatically detect the EC2 IAM Role (Instance Profile).
+        
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
-          # Do NOT provide role-to-assume or keys here for a self-hosted runner
+          # Add this line to force it to ignore OIDC and use the EC2 Role
+          unset-current-credentials: true 
+          mask-aws-account-id: 'no'
 
       - name: Login to Amazon ECR
         id: login-ecr
