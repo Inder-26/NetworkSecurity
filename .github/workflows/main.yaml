@@ -60,28 +60,29 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-
   Continuous-Deployment:
     needs: build-and-push-ecr-image
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: Set AWS Region
-        run: |
-          echo "AWS_REGION=us-east-1" >> $GITHUB_ENV
-          echo "AWS_DEFAULT_REGION=us-east-1" >> $GITHUB_ENV
+      # STEP 1: Automatically fetch credentials from your IAM Role
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
 
-      - name: Login to Amazon ECR (EC2 Role)
-        run: |
-          aws ecr get-login-password --region $AWS_REGION \
-          | docker login --username AWS --password-stdin \
-          184619417516.dkr.ecr.$AWS_REGION.amazonaws.com
+      # STEP 2: Login to ECR using the official action (no manual piping)
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
+      # STEP 3: Pull the image using the registry URL from the step above
       - name: Pull image
         run: |
-          docker pull 184619417516.dkr.ecr.$AWS_REGION.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+          docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
       - name: Stop old container
         run: |
@@ -91,5 +92,5 @@ jobs:
       - name: Run container
         run: |
           docker run -d -p 8080:8080 --name=networksecurity \
-          184619417516.dkr.ecr.$AWS_REGION.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+          ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
