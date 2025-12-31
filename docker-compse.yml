@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  networksecurity:
+    image: 184619417516.dkr.ecr.us-east-1.amazonaws.com/networksecurity:latest
+    ports:
+      - "8080:8080"
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:

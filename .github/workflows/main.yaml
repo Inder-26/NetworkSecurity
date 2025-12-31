@@ -67,7 +67,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-        
+      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -77,16 +77,21 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Pull image
+      - name: Cleanup & Deploy with Docker Compose
         run: |
-          docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
-
-      - name: Stop old container
-        run: |
-          docker ps -q --filter "name=networksecurity" | grep -q . && \
-          docker stop networksecurity && docker rm -fv networksecurity || true
-
-      - name: Run container
-        run: |
-          docker run -d -p 8080:8080 --name=networksecurity \
-          ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+          # Install Docker Compose if missing
+          curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose || true
+          chmod +x /usr/local/bin/docker-compose
+          
+          # Cleanup old deployment
+          docker-compose down || true
+          docker system prune -f || true
+          
+          # Deploy both containers
+          docker-compose up -d
+          
+          # Health check
+          sleep 20
+          curl -f http://localhost:8080/ || exit 1
+          curl -f http://localhost:8080/train || exit 1
+          echo "Full deployment successful!"
