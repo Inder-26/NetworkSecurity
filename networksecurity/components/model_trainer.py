@@ -42,7 +42,8 @@ from sklearn.metrics import (
 )
 
 # ---------------- Dagshub + MLflow ----------------
-dagshub.init(
+if os.getenv("ENABLE_DAGSHUB", "false") == "true":
+    dagshub.init(
     repo_owner="Inder-26",
     repo_name="NetworkSecurity",
     mlflow=True,
