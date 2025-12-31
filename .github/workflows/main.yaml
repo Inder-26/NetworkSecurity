@@ -79,19 +79,11 @@ jobs:
 
       - name: Cleanup & Deploy with Docker Compose
         run: |
-          # Install Docker Compose if missing
-          curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose || true
-          chmod +x /usr/local/bin/docker-compose
-          
-          # Cleanup old deployment
-          docker-compose down || true
+          # Use built-in docker compose v2
+          docker compose down || true
           docker system prune -f || true
-          
-          # Deploy both containers
-          docker-compose up -d
-          
-          # Health check
+          docker compose up -d
           sleep 20
           curl -f http://localhost:8080/ || exit 1
           curl -f http://localhost:8080/train || exit 1
-          echo "Full deployment successful!"
+          echo " Full deployment successful!"
