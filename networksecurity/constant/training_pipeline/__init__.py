@@ -14,7 +14,7 @@ FILE_NAME: str = "phisingkData.csv"
 TRAIN_FILE_NAME: str = "train.csv"
 TEST_FILE_NAME: str = "test.csv"
 
-SCHEMA_FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "data_schema", "schema.yaml")
+SCHEMA_FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "data_schema", "schema.yaml")
 
 SAVED_MODEL_DIR_NAME = os.path.join("saved_models")
 MODEL_FILE_NAME: str = "model.pkl"
