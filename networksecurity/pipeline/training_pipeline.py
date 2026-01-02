@@ -135,8 +135,8 @@ class TrainingPipeline:
             model_trainer_artifact = self.start_model_trainer(data_transformation_artifact=data_transformation_artifact)
             logging.info("Training pipeline completed successfully")
 
-            self.sync_artifact_dir_to_s3()
-            self.sync_saved_model_dir_to_s3()
+            # self.sync_artifact_dir_to_s3()
+            # self.sync_saved_model_dir_to_s3()
             
             return model_trainer_artifact
         except Exception as e:

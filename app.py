@@ -37,10 +37,13 @@ MODEL_PATH = "final_model/model.pkl"
 PREPROCESSOR_PATH = "final_model/preprocessor.pkl"
 
 # Initialize DagsHub
-try:
-    dagshub.init(repo_owner="Inder-26", repo_name="NetworkSecurity", mlflow=True)
-except Exception as e:
-    print(f"⚠️ Error initializing DagsHub: {e}")
+if os.getenv("MLFLOW_TRACKING_USERNAME") and os.getenv("MLFLOW_TRACKING_PASSWORD"):
+    try:
+        dagshub.init(repo_owner="Inder-26", repo_name="NetworkSecurity", mlflow=True)
+    except Exception as e:
+        print(f"⚠️ Error initializing DagsHub: {e}")
+else:
+    print("⚠️ DagsHub credentials not found. Skipping initialization.")
 
 # Feature Columns (30 features)
 FEATURE_COLUMNS = [
@@ -562,6 +565,9 @@ async def train_model():
             "message": "Training completed successfully"
         }
     except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Training Error: {e}", file=sys.stderr)
         raise HTTPException(status_code=500, detail=str(e))
 
 
