@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Network Security</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Network Security</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="{{ github_url }}" target="_blank" class="nav-link">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="{{ dagshub_url }}" target="_blank" class="nav-link">
+                        <i class="fas fa-flask"></i>
+                        <span>DagsHub</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content manual-page">
+        <div class="container">
+            
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1><i class="fas fa-keyboard"></i> Manual Feature Input</h1>
+                <p>Enter the 30 feature values to predict if a URL is phishing or legitimate</p>
+            </div>
+
+            <!-- Result Display (if prediction was made) -->
+            {% if result %}
+            <div class="result-card {{ 'result-danger' if result.is_threat else 'result-safe' }}">
+                <div class="result-icon">
+                    {% if result.is_threat %}
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {% else %}
+                    <i class="fas fa-check-circle"></i>
+                    {% endif %}
+                </div>
+                <div class="result-content">
+                    <h2>{{ result.label }}</h2>
+                    <p>Confidence: <strong>{{ result.confidence }}%</strong></p>
+                </div>
+                <div class="result-action">
+                    <a href="/manual" class="btn btn-outline">
+                        <i class="fas fa-redo"></i> New Prediction
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Input Form -->
+            <form id="manual-form" action="/predict/single" method="post" class="manual-form">
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="fillSample('legitimate')">
+                        <i class="fas fa-check"></i> Fill Legitimate Sample
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="fillSample('phishing')">
+                        <i class="fas fa-bug"></i> Fill Phishing Sample
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="clearForm()">
+                        <i class="fas fa-eraser"></i> Clear All
+                    </button>
+                </div>
+
+                <!-- Feature Groups -->
+                <div class="feature-groups">
+                    
+                    <!-- URL Structure -->
+                    <div class="feature-group-card">
+                        <div class="group-header">
+                            <i class="fas fa-link"></i>
+                            <h3>URL Structure</h3>
+                        </div>
+                        <div class="inputs-grid">
+                            <div class="input-item">
+                                <label for="having_IP_Address">having_IP_Address</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="having_IP_Address" value="-1" {{ 'checked' if input_values and input_values.having_IP_Address == -1 }}>
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="having_IP_Address" value="0" {{ 'checked' if not input_values or input_values.having_IP_Address == 0 }}>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="having_IP_Address" value="1" {{ 'checked' if input_values and input_values.having_IP_Address == 1 }}>
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-item">
+                                <label for="URL_Length">URL_Length</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="URL_Length" value="-1" {{ 'checked' if input_values and input_values.URL_Length == -1 }}>
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="URL_Length" value="0" {{ 'checked' if not input_values or input_values.URL_Length == 0 }}>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="URL_Length" value="1" {{ 'checked' if input_values and input_values.URL_Length == 1 }}>
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-item">
+                                <label for="Shortining_Service">Shortining_Service</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="Shortining_Service" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="Shortining_Service" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="Shortining_Service" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-item">
+                                <label for="having_At_Symbol">having_At_Symbol</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="having_At_Symbol" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="having_At_Symbol" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="having_At_Symbol" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-item">
+                                <label for="double_slash_redirecting">double_slash_redirecting</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="double_slash_redirecting" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="double_slash_redirecting" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="double_slash_redirecting" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-item">
+                                <label for="Prefix_Suffix">Prefix_Suffix</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="Prefix_Suffix" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="Prefix_Suffix" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="Prefix_Suffix" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-item">
+                                <label for="having_Sub_Domain">having_Sub_Domain</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="having_Sub_Domain" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="having_Sub_Domain" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="having_Sub_Domain" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="input-item">
+                                <label for="Abnormal_URL">Abnormal_URL</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="Abnormal_URL" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="Abnormal_URL" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="Abnormal_URL" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Features -->
+                    <div class="feature-group-card">
+                        <div class="group-header">
+                            <i class="fas fa-lock"></i>
+                            <h3>Security Features</h3>
+                        </div>
+                        <div class="inputs-grid">
+                            {% for feature in ['SSLfinal_State', 'HTTPS_token', 'port', 'Favicon', 'Statistical_report'] %}
+                            <div class="input-item">
+                                <label for="{{ feature }}">{{ feature }}</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Page Content Features -->
+                    <div class="feature-group-card">
+                        <div class="group-header">
+                            <i class="fas fa-code"></i>
+                            <h3>Page Content</h3>
+                        </div>
+                        <div class="inputs-grid">
+                            {% for feature in ['Request_URL', 'URL_of_Anchor', 'Links_in_tags', 'SFH', 'Submitting_to_email'] %}
+                            <div class="input-item">
+                                <label for="{{ feature }}">{{ feature }}</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Page Behavior Features -->
+                    <div class="feature-group-card">
+                        <div class="group-header">
+                            <i class="fas fa-mouse-pointer"></i>
+                            <h3>Page Behavior</h3>
+                        </div>
+                        <div class="inputs-grid">
+                            {% for feature in ['Redirect', 'on_mouseover', 'RightClick', 'popUpWidnow', 'Iframe'] %}
+                            <div class="input-item">
+                                <label for="{{ feature }}">{{ feature }}</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Domain Features -->
+                    <div class="feature-group-card">
+                        <div class="group-header">
+                            <i class="fas fa-globe"></i>
+                            <h3>Domain Information</h3>
+                        </div>
+                        <div class="inputs-grid">
+                            {% for feature in ['Domain_registeration_length', 'age_of_domain', 'DNSRecord', 'web_traffic', 'Page_Rank', 'Google_Index', 'Links_pointing_to_page'] %}
+                            <div class="input-item">
+                                <label for="{{ feature }}">{{ feature }}</label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="-1">
+                                        <span class="radio-btn danger">-1</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="0" checked>
+                                        <span class="radio-btn warning">0</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="{{ feature }}" value="1">
+                                        <span class="radio-btn success">1</span>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search"></i>
+                        Predict URL Safety
+                    </button>
+                </div>
+
+            </form>
+
+            <!-- Legend -->
+            <div class="legend-card">
+                <h4><i class="fas fa-info-circle"></i> Value Legend</h4>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-badge danger">-1</span>
+                        <span>Indicates phishing characteristic</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge warning">0</span>
+                        <span>Suspicious / Unknown</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge success">1</span>
+                        <span>Indicates legitimate characteristic</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p>Built with ❤️ by <strong>Inderjeet</strong></p>
+                </div>
+                <div class="footer-right">
+                    <a href="{{ github_url }}" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="{{ dagshub_url }}" target="_blank"><i class="fas fa-flask"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+        // Sample data for quick fill
+        const samples = {
+            legitimate: {
+                having_IP_Address: 1, URL_Length: 1, Shortining_Service: 1, having_At_Symbol: 1,
+                double_slash_redirecting: 1, Prefix_Suffix: 1, having_Sub_Domain: 1, SSLfinal_State: 1,
+                Domain_registeration_length: 1, Favicon: 1, port: 1, HTTPS_token: 1, Request_URL: 1,
+                URL_of_Anchor: 1, Links_in_tags: 1, SFH: 1, Submitting_to_email: 1, Abnormal_URL: 1,
+                Redirect: 0, on_mouseover: 1, RightClick: 1, popUpWidnow: 1, Iframe: 1, age_of_domain: 1,
+                DNSRecord: 1, web_traffic: 1, Page_Rank: 1, Google_Index: 1, Links_pointing_to_page: 1,
+                Statistical_report: 1
+            },
+            phishing: {
+                having_IP_Address: -1, URL_Length: -1, Shortining_Service: -1, having_At_Symbol: -1,
+                double_slash_redirecting: -1, Prefix_Suffix: -1, having_Sub_Domain: -1, SSLfinal_State: -1,
+                Domain_registeration_length: -1, Favicon: -1, port: -1, HTTPS_token: -1, Request_URL: -1,
+                URL_of_Anchor: -1, Links_in_tags: -1, SFH: -1, Submitting_to_email: -1, Abnormal_URL: -1,
+                Redirect: 0, on_mouseover: -1, RightClick: -1, popUpWidnow: -1, Iframe: -1, age_of_domain: -1,
+                DNSRecord: -1, web_traffic: -1, Page_Rank: -1, Google_Index: -1, Links_pointing_to_page: -1,
+                Statistical_report: -1
+            }
+        };
+
+        function fillSample(type) {
+            const data = samples[type];
+            for (const [name, value] of Object.entries(data)) {
+                const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
+                if (radio) radio.checked = true;
+            }
+        }
+
+        function clearForm() {
+            document.querySelectorAll('input[value="0"]').forEach(radio => radio.checked = true);
+        }
+    </script>
+</body>
+</html>

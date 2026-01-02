@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Network Security</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="/manual" class="nav-link">
+                        <i class="fas fa-keyboard"></i>
+                        <span>Manual Input</span>
+                    </a>
+                    <a href="{{ github_url }}" target="_blank" class="nav-link">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="{{ dagshub_url }}" target="_blank" class="nav-link">
+                        <i class="fas fa-flask"></i>
+                        <span>DagsHub</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-robot"></i>
+                    <span>ML-Powered Security</span>
+                </div>
+                <h1>🛡️ Phishing URL Detection</h1>
+                <p class="hero-subtitle">
+                    Protect your network with AI-powered threat detection. 
+                    Analyze URLs using 30 security features and machine learning.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value">{{ metrics.model_name }}</span>
+                            <span class="stat-label">Best Model</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value">{{ "%.1f"|format(metrics.f1_score * 100) }}%</span>
+                            <span class="stat-label">F1 Score</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-columns"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value">{{ feature_count }}</span>
+                            <span class="stat-label">Features</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value">5</span>
+                            <span class="stat-label">ML Models</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Prediction Options -->
+            <div class="prediction-options">
+                <h2 class="section-title">
+                    <i class="fas fa-magic"></i>
+                    Choose Prediction Method
+                </h2>
+                <div class="options-grid">
+                     <!-- Train Model -->
+                    <div class="card train-card">
+                         <div class="card-icon">
+                            <i class="fas fa-hammer"></i>
+                        </div>
+                        <h3>Train New Model</h3>
+                        <p>Trigger a new training pipeline to update the model</p>
+                         <button id="train-btn" class="btn btn-warning btn-block">
+                            <i class="fas fa-play"></i>
+                            Start Training
+                        </button>
+                    </div>
+
+                    <!-- Upload CSV -->
+                    <div class="card upload-card">
+                        <div class="card-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <h3>Batch Prediction</h3>
+                        <p>Upload a CSV file containing URL features for bulk analysis</p>
+                        <form id="upload-form" action="/predict" method="post" enctype="multipart/form-data">
+                             <div id="upload-zone" class="upload-zone">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Drag & Drop CSV file here</p>
+                                    <span>or click to browse</span>
+                                </div>
+                                <input type="file" name="file" id="file-input" accept=".csv" required>
+                            </div>
+                            <div id="file-info" class="file-info">
+                                <i class="fas fa-file-csv"></i>
+                                <span id="file-name">filename.csv</span>
+                                <button type="button" id="remove-file" class="btn-remove">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <button type="submit" id="submit-btn" class="btn btn-primary btn-block" disabled>
+                                <i class="fas fa-search"></i>
+                                Analyze File
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Manual Input -->
+                    <div class="card manual-card">
+                        <div class="card-icon">
+                            <i class="fas fa-keyboard"></i>
+                        </div>
+                        <h3>Manual Input</h3>
+                        <p>Enter URL features manually to check for phishing</p>
+                        <div class="manual-preview">
+                            <div class="feature-preview">
+                                <span class="feature-name">having_IP_Address</span>
+                                <span class="feature-values">-1 / 0 / 1</span>
+                            </div>
+                            <div class="feature-preview">
+                                <span class="feature-name">URL_Length</span>
+                                <span class="feature-values">-1 / 0 / 1</span>
+                            </div>
+                            <div class="feature-preview">
+                                <span class="feature-name">SSLfinal_State</span>
+                                <span class="feature-values">-1 / 0 / 1</span>
+                            </div>
+                            <div class="more-features">
+                                <span>+ 27 more features</span>
+                            </div>
+                        </div>
+                        <a href="/manual" class="btn btn-secondary btn-block">
+                            <i class="fas fa-edit"></i>
+                            Open Manual Input
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Performance Comparison (Removed as per user request to reduce clutter) -->
+            <!-- Real-time stats are shown in the Hero section -->
+            
+            <!-- Features Section -->
+            <div class="card features-card">
+                <div class="card-header">
+                    <i class="fas fa-list-check"></i>
+                    <h2>Required Features (30 Columns)</h2>
+                </div>
+                <div class="card-body">
+                    <div class="features-grid">
+                        <div class="feature-group">
+                            <h4><i class="fas fa-link"></i> URL Structure</h4>
+                            <ul>
+                                <li><code>having_IP_Address</code></li>
+                                <li><code>URL_Length</code></li>
+                                <li><code>Shortining_Service</code></li>
+                                <li><code>having_At_Symbol</code></li>
+                                <li><code>double_slash_redirecting</code></li>
+                                <li><code>Prefix_Suffix</code></li>
+                                <li><code>having_Sub_Domain</code></li>
+                                <li><code>Abnormal_URL</code></li>
+                            </ul>
+                        </div>
+                        <div class="feature-group">
+                            <h4><i class="fas fa-lock"></i> Security</h4>
+                            <ul>
+                                <li><code>SSLfinal_State</code></li>
+                                <li><code>HTTPS_token</code></li>
+                                <li><code>port</code></li>
+                                <li><code>Favicon</code></li>
+                                <li><code>Statistical_report</code></li>
+                            </ul>
+                        </div>
+                        <div class="feature-group">
+                            <h4><i class="fas fa-code"></i> Page Content</h4>
+                            <ul>
+                                <li><code>Request_URL</code></li>
+                                <li><code>URL_of_Anchor</code></li>
+                                <li><code>Links_in_tags</code></li>
+                                <li><code>SFH</code></li>
+                                <li><code>Submitting_to_email</code></li>
+                            </ul>
+                        </div>
+                        <div class="feature-group">
+                            <h4><i class="fas fa-mouse-pointer"></i> Page Behavior</h4>
+                            <ul>
+                                <li><code>Redirect</code></li>
+                                <li><code>on_mouseover</code></li>
+                                <li><code>RightClick</code></li>
+                                <li><code>popUpWidnow</code></li>
+                                <li><code>Iframe</code></li>
+                            </ul>
+                        </div>
+                        <div class="feature-group">
+                            <h4><i class="fas fa-globe"></i> Domain Info</h4>
+                            <ul>
+                                <li><code>Domain_registeration_length</code></li>
+                                <li><code>age_of_domain</code></li>
+                                <li><code>DNSRecord</code></li>
+                                <li><code>web_traffic</code></li>
+                                <li><code>Page_Rank</code></li>
+                                <li><code>Google_Index</code></li>
+                                <li><code>Links_pointing_to_page</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="feature-note">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Value Range:</strong> All features should be integers with values: 
+                            <code>-1</code> (Phishing indicator), 
+                            <code>0</code> (Suspicious), or 
+                            <code>1</code> (Legitimate indicator)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="card how-it-works-card">
+                <div class="card-header">
+                    <i class="fas fa-cogs"></i>
+                    <h2>How It Works</h2>
+                </div>
+                <div class="card-body">
+                    <div class="pipeline-steps">
+                        <div class="pipeline-step">
+                            <div class="step-number">1</div>
+                            <div class="step-icon"><i class="fas fa-database"></i></div>
+                            <h4>Data Ingestion</h4>
+                            <p>Raw data pulled from MongoDB and split into train/test sets</p>
+                        </div>
+                        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="pipeline-step">
+                            <div class="step-number">2</div>
+                            <div class="step-icon"><i class="fas fa-check-double"></i></div>
+                            <h4>Validation</h4>
+                            <p>Schema validation & KS drift detection</p>
+                        </div>
+                        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="pipeline-step">
+                            <div class="step-number">3</div>
+                            <div class="step-icon"><i class="fas fa-random"></i></div>
+                            <h4>Transformation</h4>
+                            <p>KNN Imputation & target mapping</p>
+                        </div>
+                        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="pipeline-step">
+                            <div class="step-number">4</div>
+                            <div class="step-icon"><i class="fas fa-robot"></i></div>
+                            <h4>Model Training</h4>
+                            <p>5 models evaluated, best selected by F1 score</p>
+                        </div>
+                        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="pipeline-step">
+                            <div class="step-number">5</div>
+                            <div class="step-icon"><i class="fas fa-rocket"></i></div>
+                            <h4>Deployment</h4>
+                            <p>Model served via FastAPI on Hugging Face</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <div class="footer-logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Network Security</span>
+                    </div>
+                    <p>Built with ❤️ by <strong>Inderjeet</strong></p>
+                    <p class="footer-tech">
+                        <span><i class="fab fa-python"></i> Python</span>
+                        <span><i class="fas fa-bolt"></i> FastAPI</span>
+                        <span><i class="fas fa-chart-line"></i> MLflow</span>
+                        <span><i class="fas fa-database"></i> MongoDB</span>
+                    </p>
+                </div>
+                <div class="footer-right">
+                    <a href="https://github.com/Inder-26/NetworkSecurity" target="_blank" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://dagshub.com/inder-26/NetworkSecurity" target="_blank" title="DagsHub">
+                        <i class="fas fa-flask"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/inderjeet-singh-26n/" target="_blank" title="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

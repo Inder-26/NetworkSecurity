@@ -115,3 +115,4 @@ waitress==3.0.2
 werkzeug==3.1.4
 yarl==1.22.0
 zipp==3.23.0
+aiofiles==23.2.1
