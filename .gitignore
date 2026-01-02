@@ -205,3 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Project Specific
+Artifact/
+final_model/
+deploy_stage/
+mlruns/
+Network_data/
