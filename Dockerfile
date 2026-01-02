@@ -14,6 +14,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
+# Explicitly copy data_schema to ensure it exists
+COPY data_schema ./data_schema
+
 # Copy the rest of the application code
 COPY . .
 
