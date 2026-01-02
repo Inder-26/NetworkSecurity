@@ -1,12 +1,11 @@
 ---
-title: Network Security - Phishing Detection
-emoji: 🛡️
+title: NetworkSecurity
+emoji: 😻
 colorFrom: blue
-colorTo: purple
+colorTo: blue
 sdk: docker
-pinned: true
+pinned: false
 license: mit
-app_port: 7860
 ---
 
 # 🛡️ Network Security System: Phishing URL Detection
