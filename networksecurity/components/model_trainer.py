@@ -41,8 +41,15 @@ from sklearn.metrics import (
     precision_recall_curve,
 )
 
+import os
+
 # ---------------- Dagshub + MLflow ----------------
-dagshub.init(repo_owner="Inder-26",repo_name="NetworkSecurity",mlflow=True)
+if os.getenv("MLFLOW_TRACKING_URI"):
+    print("info: MLflow tracking URI is already set, skipping DagsHub init")
+elif os.getenv("MLFLOW_TRACKING_USERNAME") and os.getenv("MLFLOW_TRACKING_PASSWORD"):
+    dagshub.init(repo_owner="Inder-26", repo_name="NetworkSecurity", mlflow=True)
+else:
+    print("Warning: DagsHub credentials not found. Tracking might rely on local configs or fail.")
 
 
 

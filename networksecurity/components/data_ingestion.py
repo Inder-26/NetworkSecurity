@@ -46,11 +46,11 @@ class DataIngestion:
             import logging
             logging.info(f"MongoDB unavailable, using sample CSV: {str(e)}")
             try:
-                df = pd.read_csv("valid_data/test.csv")
+                df = pd.read_csv("Network_data/phisingData.csv")
                 logging.info(f" Loaded {len(df)} rows from CSV")
                 return df
             except FileNotFoundError:
-                raise NetworkSecurityException("Sample CSV not found at valid_data/test.csv", sys)
+                raise NetworkSecurityException("Sample CSV not found at Network_data/phisingData.csv", sys)
 
         
     def export_data_into_feature_store(self, dataframe: pd.DataFrame):
