@@ -42,12 +42,8 @@ from sklearn.metrics import (
 )
 
 # ---------------- Dagshub + MLflow ----------------
-if os.getenv("ENABLE_DAGSHUB", "false") == "true":
-    dagshub.init(
-    repo_owner="Inder-26",
-    repo_name="NetworkSecurity",
-    mlflow=True,
-)
+dagshub.init(repo_owner="Inder-26",repo_name="NetworkSecurity",mlflow=True)
+
 
 
 # ---------------- Helper: log visual artifacts ----------------
@@ -175,7 +171,7 @@ class ModelTrainer:
             self.data_transformation_artifact.transformed_object_file_path
         )
 
-        final_model_dir = os.path.join(os.getcwd(), "final_models")
+        final_model_dir = os.path.join(os.getcwd(), "final_model")
         os.makedirs(final_model_dir, exist_ok=True)
 
         save_object(
@@ -187,7 +183,7 @@ class ModelTrainer:
             preprocessor,
         )
 
-        logging.info(f"Final model and preprocessor saved in final_models")
+        logging.info(f"Final model and preprocessor saved in final_model")
         y_train_pred = best_model.predict(X_train)
         y_test_pred = best_model.predict(X_test)
 

@@ -1,21 +1,230 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Data Table</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Network Security</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <h2>Predicted Data</h2>
-    {{ table | safe }}
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Network Security</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="{{ github_url }}" target="_blank" class="nav-link">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="{{ dagshub_url }}" target="_blank" class="nav-link">
+                        <i class="fas fa-flask"></i>
+                        <span>DagsHub</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content results-page">
+        <div class="container">
+            
+            <!-- Results Header -->
+            <div class="results-header">
+                <div class="results-title">
+                    <h1><i class="fas fa-chart-pie"></i> Prediction Results</h1>
+                    <p>Analysis complete for {{ summary.total }} URLs</p>
+                </div>
+                <div class="results-actions">
+                    <a href="/download/results/{{ output_filename }}" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download CSV
+                    </a>
+                    <a href="/" class="btn btn-outline">
+                        <i class="fas fa-plus"></i> New Analysis
+                    </a>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card total">
+                    <div class="summary-icon">
+                        <i class="fas fa-list-ol"></i>
+                    </div>
+                    <div class="summary-info">
+                        <span class="summary-value">{{ summary.total }}</span>
+                        <span class="summary-label">Total URLs Analyzed</span>
+                    </div>
+                </div>
+                
+                <div class="summary-card safe">
+                    <div class="summary-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="summary-info">
+                        <span class="summary-value">{{ summary.legitimate }}</span>
+                        <span class="summary-label">Legitimate URLs</span>
+                    </div>
+                    <div class="summary-percent">{{ ((summary.legitimate / summary.total) * 100)|round(1) }}%</div>
+                </div>
+                
+                <div class="summary-card danger">
+                    <div class="summary-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="summary-info">
+                        <span class="summary-value">{{ summary.phishing }}</span>
+                        <span class="summary-label">Phishing URLs</span>
+                    </div>
+                    <div class="summary-percent">{{ summary.phishing_percent }}%</div>
+                </div>
+                
+                <div class="summary-card threat">
+                    <div class="summary-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="summary-info">
+                        <span class="summary-value">
+                            {% if summary.phishing_percent < 20 %}Low
+                            {% elif summary.phishing_percent < 50 %}Medium
+                            {% else %}High
+                            {% endif %}
+                        </span>
+                        <span class="summary-label">Threat Level</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Threat Visualization -->
+            <div class="card threat-card">
+                <div class="card-header">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <h2>Threat Assessment</h2>
+                </div>
+                <div class="card-body">
+                    <div class="threat-visual">
+                        <div class="threat-bar-container">
+                            <div class="threat-bar">
+                                <div class="threat-segment safe" data-width="{{ ((summary.legitimate / summary.total) * 100)|round(1) }}">
+                                    <span>{{ summary.legitimate }} Safe</span>
+                                </div>
+                                <div class="threat-segment danger" data-width="{{ summary.phishing_percent }}">
+                                    <span>{{ summary.phishing }} Threats</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="threat-message">
+                            {% if summary.phishing_percent < 20 %}
+                            <div class="message-safe">
+                                <i class="fas fa-shield-alt"></i>
+                                <p><strong>Low Risk:</strong> The majority of URLs appear to be legitimate. Continue with normal operations.</p>
+                            </div>
+                            {% elif summary.phishing_percent < 50 %}
+                            <div class="message-warning">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <p><strong>Moderate Risk:</strong> Some URLs show phishing characteristics. Review flagged URLs before accessing.</p>
+                            </div>
+                            {% else %}
+                            <div class="message-danger">
+                                <i class="fas fa-skull-crossbones"></i>
+                                <p><strong>High Risk:</strong> Many URLs are potentially malicious. Avoid clicking on flagged links.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="card table-card">
+                <div class="card-header">
+                    <i class="fas fa-table"></i>
+                    <h2>Detailed Results</h2>
+                    <span class="record-count">{{ summary.total }} records</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-wrapper">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-index">#</th>
+                                    {% for col in columns %}
+                                    <th>{{ col }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in results %}
+                                <tr class="{{ 'row-danger' if row.Prediction == 1 else 'row-safe' }}">
+                                    <td class="col-index">{{ loop.index }}</td>
+                                    {% for col in columns %}
+                                    <td>
+                                        {% if col == 'Label' %}
+                                        <span class="label-badge {{ 'danger' if 'Phishing' in row[col] else 'success' }}">
+                                            {{ row[col] }}
+                                        </span>
+                                        {% elif col == 'Confidence' %}
+                                        <div class="confidence-bar">
+                                            <div class="confidence-fill" data-width="{{ row[col] }}"></div>
+                                            <span>{{ row[col] }}%</span>
+                                        </div>
+                                        {% elif col == 'Prediction' %}
+                                        <span class="prediction-value {{ 'danger' if row[col] == 1 else 'success' }}">
+                                            {{ row[col] }}
+                                        </span>
+                                        {% else %}
+                                        {{ row[col] }}
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="bottom-actions">
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i class="fas fa-redo"></i> Analyze More URLs
+                </a>
+                <a href="/download/results/{{ output_filename }}" class="btn btn-outline btn-lg">
+                    <i class="fas fa-file-csv"></i> Export Full Report
+                </a>
+                <a href="/manual" class="btn btn-outline btn-lg">
+                    <i class="fas fa-keyboard"></i> Try Manual Input
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p>Built with ❤️ by <strong>Inderjeet</strong></p>
+                </div>
+                <div class="footer-right">
+                    <a href="{{ github_url }}" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="{{ dagshub_url }}" target="_blank"><i class="fas fa-flask"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
 </body>
 </html>

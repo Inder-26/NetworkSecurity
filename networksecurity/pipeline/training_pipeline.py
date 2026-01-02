@@ -24,7 +24,7 @@ from networksecurity.entity.artifact_entity import (
     ModelTrainerArtifact,
 )
 
-class TraningPipeline:
+class TrainingPipeline:
     def __init__(self):
         try:
             self.training_pipeline_config = TrainingPipelineConfig()
@@ -111,7 +111,7 @@ class TraningPipeline:
             raise NetworkSecurityException(e, sys)
 
 
-    ## Local final_models is pushed to S3
+    ## Local final_model is pushed to S3
     def sync_saved_model_dir_to_s3(self):
         try:
             aws_bucket_url = (
