@@ -46,11 +46,19 @@ class DataIngestion:
             import logging
             logging.info(f"MongoDB unavailable, using sample CSV: {str(e)}")
             try:
-                df = pd.read_csv("Network_data/phisingData.csv")
+                # Construct absolute path relative to this script file
+                # Script is in networksecurity/components/data_ingestion.py
+                # Root is 2 levels up from current_dir (components)
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                root_dir = os.path.dirname(os.path.dirname(current_dir))
+                csv_path = os.path.join(root_dir, "Network_data", "phisingData.csv")
+                
+                logging.info(f"MongoDB unavailable. Attempting to load CSV from: {csv_path}")
+                df = pd.read_csv(csv_path)
                 logging.info(f" Loaded {len(df)} rows from CSV")
                 return df
             except FileNotFoundError:
-                raise NetworkSecurityException("Sample CSV not found at Network_data/phisingData.csv", sys)
+                raise NetworkSecurityException(f"Sample CSV not found at {csv_path}. CWD: {os.getcwd()}", sys)
 
         
     def export_data_into_feature_store(self, dataframe: pd.DataFrame):

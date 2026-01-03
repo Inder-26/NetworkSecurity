@@ -10,7 +10,11 @@ license: mit
 
 # 🛡️ Network Security System: Phishing URL Detection
 
-![UI Homepage](images/ui_homepage.png)
+![UI Homepage 1](images/home_page_1.png)
+![UI Homepage 2](images/home_page_2.png)
+![UI Homepage 3](images/home_page_3.png)
+![UI Homepage 4](images/home_page_4.png)
+![UI Homepage 5](images/home_page_5.png)
 
 ## 📋 Table of Contents
 
