@@ -47,7 +47,7 @@ def test_single_prediction():
         "Domain_registeration_length": 1,
         "Favicon": 1,
         "port": 1,
-        "HTTPS_token": 1,
+        "HTTPS_token": 0,
         "Request_URL": 1,
         "URL_of_Anchor": 1,
         "Links_in_tags": 1,
