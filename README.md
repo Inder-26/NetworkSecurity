@@ -161,10 +161,10 @@ Trains and tunes multiple models, selecting the best one based on F1-score/Accur
 4. **Set Environment Variables**
    Create a `.env` file with your credentials:
    ```env
-   MONGO_DB_URL=mongodb+srv://<username>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority
-   MLFLOW_TRACKING_URI=https://dagshub.com/<username>/NetworkSecurity.mlflow
-   MLFLOW_TRACKING_USERNAME=<username>
-   MLFLOW_TRACKING_PASSWORD=<password>
+   MONGO_DB_URL=your_mongodb_url_here
+   MLFLOW_TRACKING_URI=https://dagshub.com/your_username/project.mlflow
+   MLFLOW_TRACKING_USERNAME=your_username
+   MLFLOW_TRACKING_PASSWORD=your_password
    ```
 
 ## 🚀 Usage

@@ -212,3 +212,6 @@ final_model/
 deploy_stage/
 mlruns/
 Network_data/
+
+mlflow.db
+*.db
