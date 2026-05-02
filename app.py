@@ -280,9 +280,9 @@ async def home(request: Request):
     get_latest_metrics()
     
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
-            "request": request,
             "title": APP_TITLE,
             "github_url": GITHUB_URL,
             "dagshub_url": DAGSHUB_URL,
@@ -300,9 +300,9 @@ async def home(request: Request):
 async def manual_input(request: Request):
     """Manual input form page"""
     return templates.TemplateResponse(
+        request,
         "single_predict.html",
         {
-            "request": request,
             "title": "Manual Prediction",
             "features": FEATURE_COLUMNS,
             "feature_info": FEATURE_INFO,
@@ -412,9 +412,9 @@ async def predict(request: Request, file: UploadFile = File(...)):
         display_columns = FEATURE_COLUMNS[:5] + ["Prediction", "Label", "Confidence"]
         
         return templates.TemplateResponse(
+            request,
             "predict.html",
             {
-                "request": request,
                 "title": "Prediction Results",
                 "results": results_df.to_dict(orient="records"),
                 "summary": {
@@ -498,9 +498,9 @@ async def predict_single_form(request: Request):
         result = predict_single(features)
         
         return templates.TemplateResponse(
+            request,
             "single_predict.html",
             {
-                "request": request,
                 "title": "Prediction Result",
                 "features": FEATURE_COLUMNS,
                 "feature_info": FEATURE_INFO,
@@ -578,9 +578,9 @@ async def train_model():
 @app.exception_handler(404)
 async def not_found_handler(request: Request, exc):
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
-            "request": request,
             "title": APP_TITLE,
             "error": "Page not found",
             "github_url": GITHUB_URL,
