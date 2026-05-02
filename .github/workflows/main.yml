@@ -9,13 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          lfs: true
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Replace 'inderjeet' with your HF username if different
-          # Replace 'NetworkSecurity' with your Space name if different
-          git push --force https://inderjeet:$HF_TOKEN@huggingface.co/spaces/inderjeet/NetworkSecurity main
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          # HF Space rejects raw binaries. Strip images/ and push an orphan
+          # snapshot so neither the tip tree nor history contains PNGs.
+          git checkout --orphan hf-deploy
+          rm -rf images/
+          git add -A
+          git commit -m "Deploy snapshot to HF Space"
+          git push --force "https://inderjeet:${HF_TOKEN}@huggingface.co/spaces/inderjeet/NetworkSecurity" hf-deploy:main
